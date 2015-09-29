@@ -1,3 +1,4 @@
+import { camelizeKeys } from 'humps';
 import { normalize } from 'normalizr';
 import fetch from 'isomorphic-fetch';
 import ApiError from './ApiError';
@@ -29,10 +30,11 @@ function callApi(endpoint, method, headers, body, schema) {
       const contentType = response.headers.get('Content-Type');
       if (contentType && ~contentType.indexOf('json')) {
         return response.json().then((json) => {
+          const camelizedJson = camelizeKeys(json);
           if (schema) {
-            return Promise.resolve(normalize(json, schema));
+            return Promise.resolve(normalize(camelizedJson, schema));
           } else {
-            return Promise.resolve(json);
+            return Promise.resolve(camelizedJson);
           }
         });
       } else {
